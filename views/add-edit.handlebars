@@ -1,0 +1,41 @@
+<!-- This webpage is modified from a template available at https://www.w3docs.com/learn-html/html-form-templates.html, last accessed Feb. 9, 2020-->
+<link rel="stylesheet" type="text/css" href="new.css">
+<div class="testbox">
+    <form action="{{form_action}}" method="{{form_method}}">
+        {{#if existing_id}}
+        <input id="existing" name="existing" type="hidden" value="{{existing_id}}"/>
+        {{/if}}
+        <div class="banner">
+            <h1>{{form_header}}</h1>
+        </div>
+        <div class="colums">
+            {{#each item}}
+            <div class="item">
+                <label for="{{this.name}}">{{this.label}}{{#if this.required}}<span>*</span>{{/if}}</label>
+                {{#if this.select}}
+                <select id="{{this.id}}" name="{{this.name}}">
+                    <option value="0"></option>
+                    {{#each this.option}}
+                    <option value="{{this.option_value}}">{{this.option_text}}</option>
+                    {{/each}}
+                </select>
+                {{else}}
+                <input id="{{this.id}}" type="{{this.type}}" name="{{this.name}}" {{#if this.preset}}value="{{this.preset}}"{{/if}} {{#if this.required}}required{{/if}}/>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
+        {{#if checkbox}}
+        <div>{{checklist_header}}</div>
+        {{#each checkbox}}
+        <div>
+            <div class="check"><input type="checkbox" id="{{this.id}}" name="{{this.name}}"/></div>
+            <div class="check"><label for="{{this.name}}">{{this.label}}</label></div>
+        </div>
+        {{/each}}
+        {{/if}}
+        <div class="btn-block">
+            <input type="submit" value="Submit"/>
+        </div>
+    </form>
+</div>

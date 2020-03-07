@@ -1,0 +1,52 @@
+<link rel="stylesheet" type="text/css" href="view.css">
+{{#if redirect_message}}
+<div class="redirect">{{redirect_message}}</div>
+{{/if}}
+<section><h1>Patient Lookup</h1></section>
+<section id="patient">
+    <span>Choose a patient: </span>
+    <select id="patientSelect">
+        <option></option>
+        {{#each patient_select}}
+        <option id={{this.id}}>{{this.name}}</option>
+        {{/each}}
+    </select>
+</section>
+<section id="detail" style="{{show_detail}}">
+    <h3 id="patientName">{{#if name}}{{name}}{{/if}}</h3>
+    <div id="birthdate">{{#if birthdate}}{{birthdate}}{{/if}}</div>
+    <div id="email">{{#if email}}{{email}}{{/if}}</div>
+    <div id="phone">{{#if phone}}{{phone}}{{/if}}</div>
+    <div id="primaries">
+        <div id="primaryDoctor">Primary Doctor: {{#if doc}}{{doc}}{{/if}}</div>
+        <div id="primaryLocation">Primary Location: {{#if loc}}{{loc}}{{/if}}</div>
+    </div>
+    <div><a id="editLink" {{#if edit}}href={{edit}}{{/if}}>Edit Info</a></div>
+    <div><a id="deleteLink" {{#if delete}}href={{delete}}{{/if}}>Delete Patient</a></div>
+</section>
+<section id="appointments" style="{{show_appointments}}">
+    <h4>Scheduled Appointments</h4>
+    <div>
+        {{#if no_appts}}
+        <div>No appointments scheduled.</div>
+        {{else}}
+        {{#each appt_row}}
+        <div class="recordRow">
+            {{#each this.record}}
+            <div class="record apptRecord">
+                <h4>{{this.header}}</h4>
+                <div>{{this.doctor}}</div>
+                <div>{{this.location}}</div>
+                <div>{{this.reason}}</div>
+                <div class="actionRow">
+                    <a href={{this.reschedule}}>Reschedule</a>
+                    <a href={{this.cancel}}>Cancel</a>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{/each}}
+        {{/if}}
+    </div>
+</section>
+<script src="lookup.js"></script>

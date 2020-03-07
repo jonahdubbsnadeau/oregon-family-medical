@@ -1,0 +1,31 @@
+<link rel="stylesheet" type="text/css" href="view.css">
+{{#if redirect_message}}
+<div class="redirect">{{redirect_message}}</div>
+{{/if}}
+<section><h1>{{title}}</h1></section>
+<a href="{{new_link}}">{{new_label}}</a>
+<section id="recordContainer">
+    {{#each row}}
+    <div class="recordRow">
+        {{#each this.record}}
+        <div class="record">
+            <h3>{{this.header}}</h3>
+            {{#each this.detail}}
+            <div>{{this.text}}</div>
+            {{/each}}
+            <div>{{this.list_header}}
+                <ul>
+                    {{#each this.list}}
+                    <li>{{this.label}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="actionRow">
+                <a href={{this.edit_link}}>Edit</a>
+                <a href={{this.delete_link}}>Delete</a>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/each}}
+</section>

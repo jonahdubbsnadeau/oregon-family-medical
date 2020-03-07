@@ -1,0 +1,72 @@
+<link rel="stylesheet" type="text/css" href="manage.css">
+{{#if redirect_message}}
+<div class="redirect">{{redirect_message}}</div>
+{{/if}}
+<section id="tools">
+    <h1>Manage Appointments</h1>
+    <section><a href="/cu/appointment">Add Appointment Slot</a></section>
+    <div><h3>Filter</h3></div>
+    <section id="locationFilter">
+        <span>Location: </span>
+        <select id="locationSelect">
+            <option>All</option>
+            {{#each location_select}}
+            <option id='l{{this.id}}'>{{this.label}}</option>
+            {{/each}}
+        </select>
+    </section>
+    <section id="doctorFilter">
+        <span>Doctor: </span>
+        <select id="doctorSelect">
+            <option>All</option>
+            {{#each doctor_select}}
+            <option id='d{{this.id}}'>{{this.name}}</option>
+            {{/each}}
+        </select>
+    </section>
+</section>
+<section id="existingAppts">
+    {{#if empty}}
+    <div>No appointments were found.</div>
+    {{else}}
+    {{#each location}}
+    <div class="locationBox">
+        <div class="collapsible locationHeader">
+            <span>{{this.label}} ({{this.count}})</span>
+            <span class="contentHidden"><i class="fa fa-caret-right"></i></span>
+            <span class="contentDisplayed" style="display: none;"><i class="fa fa-caret-down"></i></span>
+        </div>
+        <div class="location">
+            {{#each this.doctor}}
+            <div class="collapsible doctorHeader">
+                <span>{{this.name}} ({{this.count}})</span>
+                <span class="contentHidden"><i class="fa fa-caret-right"></i></span>
+                <span class="contentDisplayed" style="display: none;"><i class="fa fa-caret-down"></i></span>
+            </div>
+            <div class="doctor">
+                <ul class="apptList">
+                    {{#each this.appt}}
+                    <li class="appt">
+                        <div class="details">
+                            <span>{{this.header}}:</span>
+                            {{#if this.booked}}
+                            <span class="booked">BOOKED</span>
+                            {{else}}
+                            <span class="open">OPEN</span>
+                            {{/if}}
+                        </div>
+                        <div class="actions">
+                            <span><a href={{this.edit_link}}>Edit</a></span>
+                            <span><a href={{this.delete_link}}>Delete</a></span>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/each}}
+    {{/if}}
+</section>
+<script src="manage.js"></script>

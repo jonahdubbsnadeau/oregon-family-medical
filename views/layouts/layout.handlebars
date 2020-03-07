@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="nav.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <header>
+            <div class="title">
+                <a href='/'>Oregon Family Medical</a>
+            </div>
+            <div class="nav">
+      
+                <div class="navItem">
+                    <a id="scheduleAppointment" class="navHeader" href="/schedule">Schedule Appointment</a>
+                </div>
+                
+                <div class="navItem">
+                    <button class="navHeader">Patients <i class="fa fa-caret-down"></i></button>
+                    <div class="menu">
+                        <a href="/cu/patient">New Patient</a>
+                        <a href="/r/patient">Patient Lookup</a>
+                    </div>
+                </div>
+                
+                <div class="navItem">
+                    <button class="navHeader">Staff <i class="fa fa-caret-down"></i></button>
+                    <div class="menu">
+                        <a href="/r/doctor">View Doctors</a>
+                        <a href="/r/location">View Locations</a>
+                        <a href="/manage">Manage Appointments</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main>
+            {{{body}}}
+        </main>
+    </body>
+</html>

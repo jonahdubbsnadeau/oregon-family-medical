@@ -1,0 +1,46 @@
+main {
+    padding: 16px;
+}
+
+.recordRow {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.record {
+    height: auto;
+    min-width: 200px;
+    margin: 16px;
+    padding: 16px;
+    border: solid 1px gray;
+    background-color: white;
+}
+
+.actionRow {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.newRecord {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+main a {
+    color: orangered;
+    text-decoration: none;
+}
+
+main a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.redirect {
+    color: red;
+}

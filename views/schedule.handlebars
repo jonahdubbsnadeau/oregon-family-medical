@@ -1,8 +1,10 @@
+<link rel="stylesheet" type="text/css" href="schedule.css">
 <section><h1>Schedule an Appointment</h1></section>
 <section id="patient">
     <span>Patient: </span>{{#if current_patient_name}}<span>{{current_patient_name}}</span>
     {{else}}
     <select id="patientSelect">
+        <option></option>
         {{#each patient_option}}
         <option id={{this.patient_id}}>{{this.first_name}} {{this.last_name}}</option>
         {{/each}}
@@ -12,10 +14,12 @@
 <section id="doctor">
     <span>Doctor: </span>
     <span id="doctorName"></span>
+    <input id="doctorID" type="hidden" />
 </section>
 <section id="location">
     <span>Location: </span>
     <span id="locationLabel"></span>
+    <input id="locationID" type="hidden" />
 </section>
 <section id="schedule">
     <div id="calendarContainer">
@@ -32,6 +36,17 @@
         <div id="defaultText">Choose a date on the calendar to see available appointments.</div>
         <div id="available">
             <h3 id="dateDisplay"></h3>
+            <div id="noAppts" style="display: none;">No appointments available on that date.</div>
+            <form id="apptForm" action="/schedule" method="POST" style="display: none;">
+                <div id="appts"></div>
+                <div class="chiefComplaint">Reason for Appointment:
+                    <div>
+                        <textarea rows="10" cols="100" name="reason"></textarea>
+                    </div>
+                </div>
+                <input type="hidden" name="patient" id="patientInput" />
+                <div><input type="submit" value="Schedule"></div>
+            </form>
         </div>
     </div>
 </section>

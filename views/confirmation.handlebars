@@ -1,0 +1,12 @@
+<link rel="stylesheet" type="text/css" href="schedule.css">
+<h1>Your appointment has been scheduled!</h1>
+<section id="details">
+    <div>{{day_of_week}}, {{month}} {{day}}, {{year}} at {{time}}</div>
+    <div>{{patient}} and {{doctor}}</div>
+    <div>{{location}}</div>
+</section>
+<section id="actions">
+    <a href="/schedule">Schedule Another Appointment</a>
+    <a href="/r/patient?id={{pid}}">View Patient Details</a>
+    <a href="/">Home</a>
+</section>
