@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    background-color: #FBFBF4;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    background-color: #333;
+    color: #FFF;
+    height: 76px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    height: 60px;
+    padding: 16px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.title a {
+    color: white;
+    text-decoration: none;
+}
+
+.title a:hover {
+    color: orangered;
+    cursor: pointer;
+}
+
+.nav {
+    width: 50%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#scheduleAppointment {
+    display: flex;
+    height: 44px;
+    padding: 16px;
+    text-decoration: none;
+}
+
+.nav button {
+    height: 76px;
+    padding: 16px;
+    border: none;
+}
+
+.navHeader {
+    font-size: 16px;
+    background-color: #333;
+    color: #FFF;
+    align-items: center;
+}
+
+/* https://www.w3schools.com/howto/howto_css_dropdown.asp */
+/* https://www.w3schools.com/howto/howto_js_dropdown.asp */
+
+.menu {
+    display: none;
+    position: absolute;
+    background-color: #F1F1F1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.menu a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.menu a:hover {
+    background-color: #DDD;
+}
+
+.navItem:hover .menu {
+    display: block;
+}
+
+.navItem:hover .navHeader {
+    background-color: orangered;
+    cursor: pointer;
+}

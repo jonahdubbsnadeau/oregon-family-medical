@@ -1,0 +1,89 @@
+main a {
+    color: orangered;
+    text-decoration: none;
+}
+
+main a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#tools {
+    padding: 16px;
+}
+
+#existingAppts {
+    padding: 0;
+}
+
+.locationBox {
+    border: 1px solid black;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.collapsible {
+    padding: 0;
+    cursor: pointer;
+}
+
+.locationHeader {
+    font-size: 24;
+    font-weight: bolder;
+    background-color: #333;
+    color: white;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.location {
+    display: none;
+}
+
+.doctorHeader {
+    font-size: 20;
+    font-weight: bold;
+    background-color: gainsboro;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.doctor {
+    display: none;
+}
+
+ul {
+    list-style: none;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+li {
+    margin-top: 16px;
+}
+
+.details {
+    font-weight: bold;
+}
+
+.open {
+    color: green;
+}
+
+.booked {
+    color: red;
+}
+
+.actions {
+    width: 8%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.redirect {
+    color: red;
+}
