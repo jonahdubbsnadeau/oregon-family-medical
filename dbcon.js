@@ -1,10 +1,10 @@
 var mysql = require('mysql2/promise');
 
 var pool = mysql.createPool({
-    host:            'classmysql.engr.oregonstate.edu',
-    user:            'cs340_dubbsnaj',
-    password:        '8054',
-    database:        'cs340_dubbsnaj'
+    host:            '35.223.94.139',
+    user:            'root',
+    password:        'rqB38qh9LCD7oaP4',
+    database:        'cs340'
 });
 
 module.exports.pool = pool;
