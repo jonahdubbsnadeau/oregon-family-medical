@@ -74,7 +74,7 @@ async function schedule_page(req, res) {
             };
 
             // Get available appointments
-            var available_appts = await mysql.pool.query('SELECT CONCAT(year, "-", month, "-", day) AS date FROM APPOINTMENTS WHERE patient_id IS NULL AND doctor_id = ? AND location_id = ? GROUP BY month, day', [result.did, result.lid]);
+            var available_appts = await mysql.pool.query('SELECT CONCAT(year, "-", month, "-", day) AS date FROM APPOINTMENTS WHERE patient_id IS NULL AND doctor_id = ? AND location_id = ? GROUP BY year, month, day', [result.did, result.lid]);
             result.dates = available_appts[0];
             res.send(JSON.stringify(result));
         }
