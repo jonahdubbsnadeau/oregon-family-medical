@@ -6,7 +6,7 @@ var mysql = require('./dbcon.js');
 var app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
-app.set('port', 8054);
+app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8054);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
