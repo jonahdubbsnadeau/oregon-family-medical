@@ -4,9 +4,9 @@
     <span>Patient: </span>{{#if current_patient_name}}<span>{{current_patient_name}}</span>
     {{else}}
     <select id="patientSelect">
-        <option></option>
+        <option value="0"></option>
         {{#each patient_option}}
-        <option id={{this.patient_id}}>{{this.first_name}} {{this.last_name}}</option>
+        <option value={{this.option_value}}>{{this.option_text}}</option>
         {{/each}}
     </select>
     {{/if}}
@@ -37,14 +37,15 @@
         <div id="available">
             <h3 id="dateDisplay"></h3>
             <div id="noAppts" style="display: none;">No appointments available on that date.</div>
-            <form id="apptForm" action="/schedule" method="POST" style="display: none;">
+            <form id="apptForm" action="{{#if old_appt}}/reschedule{{else}}/schedule{{/if}}" method="POST" style="display: none;">
                 <div id="appts"></div>
                 <div class="chiefComplaint">Reason for Appointment:
                     <div>
                         <textarea rows="10" cols="100" name="reason"></textarea>
                     </div>
                 </div>
-                <input type="hidden" name="patient" id="patientInput" />
+                <input type="hidden" name="patient" id="patientInput" {{#if current_patient}}value="{{current_patient}}"{{/if}}/>
+                {{#if old_appt}}<input type="hidden" name="old" id="oldAppt" value="{{old_appt}}" />{{/if}}
                 <div><input type="submit" value="Schedule"></div>
             </form>
         </div>

@@ -254,8 +254,10 @@ function convert_time(time) {
     } else if (hour > 12) {
         hour -= 12;
         post = 'PM';
-    } else {
+    } else if (hour < 12) {
         post = 'AM';
+    } else {
+        post = 'PM';
     }
 
     return String(hour) + ":" + time.substring(3, 5) + " " + post;

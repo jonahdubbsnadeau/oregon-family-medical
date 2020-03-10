@@ -82,3 +82,28 @@ main {
     background-color: orangered;
     color: white;
 }
+
+input[type=submit] {
+    width: 150px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px; 
+    background:  /* #669999 */ #333;
+    font-size: 16px;
+    color: #fff;
+    cursor: pointer;
+}
+    
+input[type=submit]:hover {
+    background:  /* #a3c2c2 */ orangered;
+}
+
+main a {
+    color: orangered;
+    text-decoration: none;
+}
+
+main a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}

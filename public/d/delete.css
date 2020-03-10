@@ -2,7 +2,7 @@ main {
     padding: 16px;
 }
 
-main button {
+input[type=submit] {
     width: 150px;
     padding: 10px;
     border: none;
@@ -13,7 +13,7 @@ main button {
     cursor: pointer;
 }
     
-main button:hover {
+input[type=submit]:hover {
     background:  /* #a3c2c2 */ orangered;
 }
 

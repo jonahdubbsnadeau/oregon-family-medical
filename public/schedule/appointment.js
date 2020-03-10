@@ -11,18 +11,24 @@ resetCalendar();
 document.getElementById("previousMonth").addEventListener("click", buildPreviousMonth);
 document.getElementById("nextMonth").addEventListener("click", buildNextMonth);
 
-document.getElementById("patientSelect").addEventListener("change", function(event) {
-    if (document.getElementById("patientSelect").value == "") {
-        document.getElementById("doctor").style.display = "none";
-        document.getElementById("location").style.display = "none";
-        document.getElementById("schedule").style.display = "none";
-    } else {
-        var selected = document.getElementById("patientSelect");
-        var id = selected.options[selected.selectedIndex].getAttribute("id");
-        document.getElementById("patientInput").value = id;
-        getDates(id);
-    }
-});
+if (document.getElementById("patientInput").value) {
+    getDates(document.getElementById("patientInput").value);
+}
+
+if (document.getElementById("patientSelect")) {
+    document.getElementById("patientSelect").addEventListener("change", function(event) {
+        if (document.getElementById("patientSelect").value == "0") {
+            document.getElementById("doctor").style.display = "none";
+            document.getElementById("location").style.display = "none";
+            document.getElementById("schedule").style.display = "none";
+        } else {
+            var id = document.getElementById("patientSelect").value;
+            document.getElementById("patientInput").value = id;
+            getDates(id);
+        }
+    });
+}
+
 
 function getDates(id) {
     var req = new XMLHttpRequest();

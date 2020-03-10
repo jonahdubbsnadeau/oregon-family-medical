@@ -1,0 +1,15 @@
+<link rel="stylesheet" type="text/css" href="delete.css">
+<section><h1>{{title}}: {{detail}}</h1></section>
+<section id="confirm">
+    <div>{{msg1}}</div>
+    <div>{{msg2}}</div>
+</section>
+<form action="{{proceed_form_action}}" method="POST">
+    <input type="hidden" name="id" value="{{input}}" />
+    <input type="submit" value="Yes, Delete" />
+</form>
+<form action="{{cancel_form_action}}" method="GET">
+    <input type="hidden" name="id" value="{{input}}" />
+    <input type="submit" value="No, Go Back" />
+</form>
+<div>NOTE: Deletion may take a while. Please wait for the page to finish loading.</div>

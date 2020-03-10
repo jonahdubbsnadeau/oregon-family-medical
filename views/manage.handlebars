@@ -9,18 +9,18 @@
     <section id="locationFilter">
         <span>Location: </span>
         <select id="locationSelect">
-            <option>All</option>
+            <option value="0">All</option>
             {{#each location_select}}
-            <option id='l{{this.id}}'>{{this.label}}</option>
+            <option value="{{this.option_value}}">{{this.option_text}}</option>
             {{/each}}
         </select>
     </section>
     <section id="doctorFilter">
         <span>Doctor: </span>
         <select id="doctorSelect">
-            <option>All</option>
+            <option value="0">All</option>
             {{#each doctor_select}}
-            <option id='d{{this.id}}'>{{this.name}}</option>
+            <option value="{{this.option_value}}">{{this.option_text}}</option>
             {{/each}}
         </select>
     </section>

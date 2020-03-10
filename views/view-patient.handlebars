@@ -6,9 +6,9 @@
 <section id="patient">
     <span>Choose a patient: </span>
     <select id="patientSelect">
-        <option></option>
+        <option value="0"></option>
         {{#each patient_select}}
-        <option id={{this.id}}>{{this.name}}</option>
+        <option value="{{this.option_value}}">{{this.option_text}}</option>
         {{/each}}
     </select>
 </section>
@@ -18,8 +18,8 @@
     <div id="email">{{#if email}}{{email}}{{/if}}</div>
     <div id="phone">{{#if phone}}{{phone}}{{/if}}</div>
     <div id="primaries">
-        <div id="primaryDoctor">Primary Doctor: {{#if doc}}{{doc}}{{/if}}</div>
-        <div id="primaryLocation">Primary Location: {{#if loc}}{{loc}}{{/if}}</div>
+        <div id="primaryDoctor">Primary Doctor: {{#if doc}}{{doc}}{{else}}<a href={{edit}}>Choose</a>{{/if}}</div>
+        <div id="primaryLocation">Primary Location: {{#if loc}}{{loc}}{{else}}<a href={{edit}}>Choose</a>{{/if}}</div>
     </div>
     <div><a id="editLink" {{#if edit}}href={{edit}}{{/if}}>Edit Info</a></div>
     <div><a id="deleteLink" {{#if delete}}href={{delete}}{{/if}}>Delete Patient</a></div>
@@ -40,7 +40,7 @@
                 <div>{{this.reason}}</div>
                 <div class="actionRow">
                     <a href={{this.reschedule}}>Reschedule</a>
-                    <a href={{this.cancel}}>Cancel</a>
+                    <a class="cancelAppt" onclick="confirmCancel({{appt}}, {{patient}})">Cancel</a>
                 </div>
             </div>
             {{/each}}

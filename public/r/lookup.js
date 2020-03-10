@@ -1,10 +1,16 @@
 document.getElementById("patientSelect").addEventListener("change", function(event) {
-    if (document.getElementById("patientSelect").value == "") {
+    var redirect = document.getElementsByClassName("redirect");
+    if (redirect.length > 0) {
+        for (var i = 0; i < redirect.length; i++) {
+            redirect[i].style.display = "none";
+        }
+    }
+
+    if (document.getElementById("patientSelect").value == "0") {
         document.getElementById("detail").style.display = "none";
         document.getElementById("appointments").style.display = "none";
     } else {
-        var selected = document.getElementById("patientSelect");
-        var patientID = selected.options[selected.selectedIndex].getAttribute("id");
+        var patientID = document.getElementById("patientSelect").value;
         displayDetails(patientID);
     }
 });
@@ -21,8 +27,26 @@ function displayDetails(id) {
             document.getElementById("birthdate").textContent = details.birthdate;
             document.getElementById("email").textContent = details.email;
             document.getElementById("phone").textContent = details.phone;
-            document.getElementById("primaryDoctor").textContent = details.doc;
-            document.getElementById("primaryLocation").textContent = details.loc;
+
+            document.getElementById("primaryDoctor").textContent = "Primary Doctor: ";
+            if (details.doc) {
+                document.getElementById("primaryDoctor").textContent += details.doc;
+            } else {
+                var choose = document.createElement("a");
+                choose.setAttribute("href", details.edit);
+                choose.textContent = "Choose";
+                document.getElementById("primaryDoctor").appendChild(choose);
+            }
+            
+            document.getElementById("primaryLocation").textContent = "Primary Location: ";
+            if (details.loc) {
+                document.getElementById("primaryLocation").textContent += details.loc;
+            } else {
+                var choose = document.createElement("a");
+                choose.setAttribute("href", details.edit);
+                choose.textContent = "Choose";
+                document.getElementById("primaryLocation").appendChild(choose);
+            }
 
             document.getElementById("editLink").setAttribute("href", details.edit);
             document.getElementById("deleteLink").setAttribute("href", details.delete);
@@ -67,7 +91,8 @@ function displayDetails(id) {
                         reschedule.textContent = "Reschedule";
 
                         var cancel = document.createElement("a");
-                        cancel.setAttribute("href", appt.cancel);
+                        cancel.classList.add("cancelAppt");
+                        cancel.setAttribute("onclick", "confirmCancel(" + appt.appt + ", " + appt.patient + ")");
                         cancel.textContent = "Cancel";
 
                         actionRow.appendChild(reschedule);
@@ -97,9 +122,20 @@ function displayDetails(id) {
     req.send(null);
 }
 
-function confirmCancel() {
+function confirmCancel(appt, patient) {
     var choice = confirm("Are you sure you want to cancel this appointment?");
     if (choice == true) {
-        // Do stuff here
+        var req = new XMLHttpRequest();
+        var body = { appt: appt, patient: patient };
+        req.open('POST', '/cancel', true);
+        req.setRequestHeader('Content-Type', 'application/json');
+        req.addEventListener('load', function() {
+            if (req.status >= 200 && req.status < 400) {
+                window.location.href = '/r/patient?id=' + patient + '&cancel=success';
+            } else {
+                console.log("Error in network request: " + req.statusText);
+            }
+        });
+        req.send(JSON.stringify(body));
     }
 }
