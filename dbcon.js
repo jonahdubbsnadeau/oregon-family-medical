@@ -1,7 +1,7 @@
 var mysql = require('mysql2/promise');
 
 var pool = mysql.createPool({
-    host:            '35.223.94.139',
+    socketPath:      '/cloudsql/responsive-icon-270702:us-central1:oregon-family-medical',
     user:            'root',
     password:        'rqB38qh9LCD7oaP4',
     database:        'cs340'
