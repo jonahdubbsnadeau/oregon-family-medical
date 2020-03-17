@@ -11,7 +11,7 @@
         <select id="locationSelect">
             <option value="0">All</option>
             {{#each location_select}}
-            <option value="{{this.option_value}}">{{this.option_text}}</option>
+            <option value="{{this.option_value}}" {{#if this.selected}}selected{{/if}}>{{this.option_text}}</option>
             {{/each}}
         </select>
     </section>
@@ -20,7 +20,7 @@
         <select id="doctorSelect">
             <option value="0">All</option>
             {{#each doctor_select}}
-            <option value="{{this.option_value}}">{{this.option_text}}</option>
+            <option value="{{this.option_value}}" {{#if this.selected}}selected{{/if}}>{{this.option_text}}</option>
             {{/each}}
         </select>
     </section>

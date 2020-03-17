@@ -6,7 +6,7 @@
     <select id="patientSelect">
         <option value="0"></option>
         {{#each patient_option}}
-        <option value={{this.option_value}}>{{this.option_text}}</option>
+        <option value={{this.option_value}} {{#if this.selected}}selected{{/if}}>{{this.option_text}}</option>
         {{/each}}
     </select>
     {{/if}}

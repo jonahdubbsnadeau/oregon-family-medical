@@ -16,11 +16,11 @@
                 <select id="{{this.id}}" name="{{this.name}}">
                     <option value="0"></option>
                     {{#each this.option}}
-                    <option value="{{this.option_value}}">{{this.option_text}}</option>
+                    <option value="{{this.option_value}}" {{#if this.selected}}selected{{/if}}>{{this.option_text}}</option>
                     {{/each}}
                 </select>
                 {{else}}
-                <input id="{{this.id}}" type="{{this.type}}" name="{{this.name}}" {{#if this.preset}}value="{{this.preset}}"{{/if}} {{#if this.required}}required{{/if}}/>
+                <input id="{{this.id}}" type="{{this.type}}" name="{{this.name}}" {{#if this.preset}}value="{{this.preset}}"{{/if}} {{#if this.placeholder}}placeholder="{{this.placeholder}}"{{/if}} {{#if this.required}}required{{/if}}/>
                 {{/if}}
             </div>
             {{/each}}
@@ -29,13 +29,14 @@
         <div>{{checklist_header}}</div>
         {{#each checkbox}}
         <div>
-            <div class="check"><input type="checkbox" id="{{this.id}}" name="{{this.name}}"/></div>
+            <div class="check"><input type="checkbox" class="checkbox" id="{{this.id}}" name="{{this.name}}" {{#if this.checked}}checked{{/if}}/></div>
             <div class="check"><label for="{{this.name}}">{{this.label}}</label></div>
         </div>
         {{/each}}
         {{/if}}
         <div class="btn-block">
-            <input type="submit" value="Submit"/>
+            <div id="errorMessage"></div>
+            <input id="submitButton" type="submit" value="Submit"/>
         </div>
     </form>
 </div>

@@ -29,8 +29,8 @@ app.route('/d/doctor').get(delete_doctors_page).post(delete_doctor);
 app.route('/d/location').get(delete_locations_page).post(delete_location);
 app.route('/d/appointment').get(delete_appts_page).post(delete_appt);
 app.route('/manage').get(manage_page);
-app.post('/cancel', unschedule);
-app.post('/reschedule', reschedule);
+app.route('/cancel').post(unschedule);
+app.route('/reschedule').post(reschedule);
 app.route('/doctors_locations').get(doctors_locations);
 
 async function schedule(req, res) {
@@ -49,7 +49,7 @@ async function reschedule(req, res) {
     res.redirect('/schedule/success?appt=' + req.body.appt);
 }
 
-async function schedule_page(req, res) {
+async function schedule_page(req, res, next) {
     if (req.query.ajax) {
         // AJAX request for available times on a given date
         if (req.query.year) {
@@ -65,7 +65,7 @@ async function schedule_page(req, res) {
             query += 'JOIN LOCATIONS ON PATIENTS.primary_location = LOCATIONS.location_id AND PATIENTS.patient_id = ?';
 
             var dl_data = await mysql.pool.query(query, [req.query.patient, req.query.patient]);
-            
+
             var result = {
                 did: dl_data[0][0].did,
                 doctor: dl_data[0][0].doctor,
@@ -95,6 +95,13 @@ async function schedule_page(req, res) {
             
         if (req.query.patient) {
             // Patient is pre-selected
+            for (var i = 0; i < p_data[0].length; i++) {
+                if (p_data[0][i].option_value == req.query.patient) {
+                    p_data[0][i].selected = true;
+                    break;
+                }
+            }
+
             res.render('schedule', { current_patient: req.query.patient, patient_option: p_data[0] });
         } else {
             res.render('schedule', { patient_option: p_data[0] });
@@ -149,6 +156,15 @@ async function manage_page(req, res) {
     var location_list = await mysql.pool.query(get_locations, location_args);
     context.location_select = location_list[0];
 
+    if (req.query.location) {
+        for (var i = 0; i < context.location_select.length; i++) {
+            if (context.location_select[i].option_value == req.query.location) {
+                context.location_select[i].selected = true;
+                break;
+            }
+        }
+    }
+
     var doctor_args = [];
     var get_doctors = 'SELECT DOCTORS.doctor_id AS option_value, CONCAT(title, " ", first_name, " ", last_name) AS option_text FROM DOCTORS';
     if (req.query.location) {
@@ -160,6 +176,15 @@ async function manage_page(req, res) {
 
     var doctor_list = await mysql.pool.query(get_doctors, doctor_args);
     context.doctor_select = doctor_list[0];
+
+    if (req.query.doctor) {
+        for (var i = 0; i < context.doctor_select.length; i++) {
+            if (context.doctor_select[i].option_value == req.query.doctor) {
+                context.doctor_select[i].selected = true;
+                break;
+            }
+        }
+    }
 
     var appt_args = [];
 
@@ -221,7 +246,7 @@ async function manage_page(req, res) {
 
 async function cu_patients_page(req, res) {
     var context = {
-        opt_script: 'doctors_locations.js',
+        opt_script: 'patient_or_appt.js',
         form_action: '/cu/patient',
         form_method: 'POST',
         item: [
@@ -240,16 +265,38 @@ async function cu_patients_page(req, res) {
     context.item.push( { id: 'loc', name: 'loc', select: true, label: 'Primary Location', option: location_list[0] } );
 
     if (req.query.id) {
-        var data = await mysql.pool.query('SELECT patient_id, first_name, last_name, birthdate, email, phone FROM PATIENTS WHERE patient_id = ?', [req.query.id]);
+        var query = 'SELECT patient_id, PATIENTS.first_name AS fname, PATIENTS.last_name AS lname, birthdate, email, PATIENTS.phone AS ph, primary_doctor, primary_location FROM PATIENTS ';
+        query += 'LEFT JOIN DOCTORS ON primary_doctor = doctor_id ';
+        query += 'LEFT JOIN LOCATIONS ON primary_location = location_id ';
+        query += 'WHERE patient_id = ?';
+
+        var data = await mysql.pool.query(query, [req.query.id]);
         var patient_details = data[0][0];
 
         context.form_header = 'Edit a Patient';
         context.existing_id = patient_details.patient_id;
-        context.item[0].preset = patient_details.first_name;
-        context.item[1].preset = patient_details.last_name;
+        context.item[0].preset = patient_details.fname;
+        context.item[1].preset = patient_details.lname;
         context.item[2].preset = to_ISO(patient_details.birthdate);
         context.item[3].preset = patient_details.email;
-        context.item[4].preset = patient_details.phone;
+        context.item[4].preset = patient_details.ph;
+
+        var doctors = context.item[5].option;
+        var locations = context.item[6].option;
+
+        for (var i = 0; i < doctors.length; i++) {
+            if (doctors[i].option_value == patient_details.primary_doctor) {
+                doctors[i].selected = true;
+                break;
+            }
+        }
+
+        for (var j = 0; j < locations.length; j++) {
+            if (locations[j].option_value == patient_details.primary_location) {
+                locations[j].selected = true;
+                break;
+            }
+        }
 
         res.render('add-edit', context);
     } else {
@@ -276,13 +323,14 @@ async function cu_patient(req, res) {
 
 async function cu_doctors_page(req, res) {
     var context = {
+        opt_script: 'doctor.js',
         form_action: '/cu/doctor',
         form_method: 'POST',
         item: [
-            { id: 'title', name: 'title', type: 'text', required: true, label: 'Title' },
+            { id: 'title', name: 'title', type: 'text', required: true, label: 'Title', placeholder: 'e.g. Dr., Ms., Mrs., Mr.' },
             { id: 'fname', name: 'fname', type: 'text', required: true, label: 'First Name' },
             { id: 'lname', name: 'lname', type: 'text', required: true, label: 'Last Name' },
-            { id: 'degree', name: 'degree', type: 'text', required: true, label: 'Degree' }
+            { id: 'degree', name: 'degree', type: 'text', required: true, label: 'Degree', placeholder: 'e.g. M.D., D.O., N.P.' }
         ]
     };
 
@@ -310,6 +358,21 @@ async function cu_doctors_page(req, res) {
         context.item[1].preset = doctor.first_name;
         context.item[2].preset = doctor.last_name;
         context.item[3].preset = doctor.degree;
+
+        var query = 'SELECT LOCATIONS.location_id AS id FROM LOCATIONS ';
+        query += 'JOIN DOCTORS_LOCATIONS ON LOCATIONS.location_id = DOCTORS_LOCATIONS.location_id ';
+        query += 'JOIN DOCTORS ON DOCTORS_LOCATIONS.doctor_id = DOCTORS.doctor_id AND DOCTORS.doctor_id = ? ORDER BY id ASC';
+
+        var location_data = await mysql.pool.query(query, [req.query.id]);
+        var locations = location_data[0];
+
+        for (var i = 0; i < locations.length; i++) {
+            for (var j = 0; j < context.checkbox.length; j++) {
+                if (context.checkbox[j].id == locations[i].id) {
+                    context.checkbox[j].checked = true;
+                }
+            }
+        }
 
         res.render('add-edit', context);
     } else {
@@ -362,6 +425,7 @@ async function cu_doctor(req, res) {
 
 async function cu_locations_page(req, res) {
     var context = {
+        opt_script: 'location.js',
         form_action: '/cu/location',
         form_method: 'POST',
         item: [
@@ -403,6 +467,21 @@ async function cu_locations_page(req, res) {
         context.item[4].preset = location.state;
         context.item[5].preset = location.zip;
         context.item[6].preset = location.phone;
+
+        var query = 'SELECT DOCTORS.doctor_id AS id FROM DOCTORS ';
+        query += 'JOIN DOCTORS_LOCATIONS ON DOCTORS.doctor_id = DOCTORS_LOCATIONS.doctor_id ';
+        query += 'JOIN LOCATIONS ON DOCTORS_LOCATIONS.location_id = LOCATIONS.location_id AND LOCATIONS.location_id = ? ORDER BY id ASC';
+
+        var doctor_data = await mysql.pool.query(query, [req.query.id]);
+        var doctors = doctor_data[0];
+
+        for (var i = 0; i < doctors.length; i++) {
+            for (var j = 0; j < context.checkbox.length; j++) {
+                if (context.checkbox[j].id == doctors[i].id) {
+                    context.checkbox[j].checked = true;
+                }
+            }
+        }
 
         res.render('add-edit', context);
     } else {
@@ -470,7 +549,7 @@ async function cu_location(req, res) {
 
 async function cu_appts_page(req, res) {
     var context = {
-        opt_script: 'doctors_locations.js',
+        opt_script: 'patient_or_appt.js',
         form_action: '/cu/appointment',
         form_method: 'POST',
         item: [
@@ -486,7 +565,7 @@ async function cu_appts_page(req, res) {
     context.item.push( { id: 'loc', name: 'loc', select: true, label: 'Location', option: location_list[0] } );
 
     if (req.query.id) {
-        var data = await mysql.pool.query('SELECT appointment_id, time, year, month, day FROM APPOINTMENTS WHERE appointment_id = ?', [req.query.id]);
+        var data = await mysql.pool.query('SELECT appointment_id, doctor_id, location_id, time, year, month, day FROM APPOINTMENTS WHERE appointment_id = ?', [req.query.id]);
         var appt = data[0][0];
 
         context.form_header = 'Edit an Appointment';
@@ -505,6 +584,23 @@ async function cu_appts_page(req, res) {
         date += appt.day;
 
         context.item[1].preset = date;
+
+        var doctors = context.item[2].option;
+        var locations = context.item[3].option;
+
+        for (var i = 0; i < doctors.length; i++) {
+            if (doctors[i].option_value == appt.doctor_id) {
+                doctors[i].selected = true;
+                break;
+            }
+        }
+
+        for (var j = 0; j < locations.length; j++) {
+            if (locations[j].option_value == appt.location_id) {
+                locations[j].selected = true;
+                break;
+            }
+        }
 
         res.render('add-edit', context);
     } else {
@@ -531,17 +627,14 @@ async function cu_appt(req, res) {
 
 async function read_patients(req, res) {
     if (req.query.id) {
-        var query = 'SELECT PATIENTS.patient_id AS pid, CONCAT(PATIENTS.first_name, " ", PATIENTS.last_name) AS name, birthdate, email, PATIENTS.phone AS phone, ';
-        query += 'CONCAT(title, " ", DOCTORS.first_name, " ", DOCTORS.last_name) AS doc, label AS loc, ';
-        query += 'appointment_id AS aid, day_of_week, month, CONCAT(" ", day, ", ", year) AS header, time, chief_complaint AS reason FROM PATIENTS ';
-        query += 'LEFT JOIN DOCTORS ON PATIENTS.primary_doctor = DOCTORS.doctor_id ';
-        query += 'LEFT JOIN LOCATIONS ON PATIENTS.primary_location = LOCATIONS.location_id ';
-        query += 'LEFT JOIN APPOINTMENTS ON PATIENTS.patient_id = APPOINTMENTS.patient_id ';
-        query += 'WHERE PATIENTS.patient_id = ?';
+        var p_query = 'SELECT PATIENTS.patient_id AS pid, CONCAT(PATIENTS.first_name, " ", PATIENTS.last_name) AS name, birthdate, email, PATIENTS.phone AS phone, ';
+        p_query += 'CONCAT(title, " ", DOCTORS.first_name, " ", DOCTORS.last_name) AS doc, label AS loc FROM PATIENTS ';
+        p_query += 'LEFT JOIN DOCTORS ON PATIENTS.primary_doctor = DOCTORS.doctor_id ';
+        p_query += 'LEFT JOIN LOCATIONS ON PATIENTS.primary_location = LOCATIONS.location_id ';
+        p_query += 'WHERE PATIENTS.patient_id = ?';
 
-        var data = await mysql.pool.query(query, [req.query.id]);
-        var appointments = data[0];
-        var patient_details = data[0][0];
+        var p_data = await mysql.pool.query(p_query, [req.query.id]);
+        var patient_details = p_data[0][0];
 
         var result = {
             name: patient_details.name, 
@@ -565,7 +658,14 @@ async function read_patients(req, res) {
             result.loc = null;
         }
 
-        if (!patient_details.aid) {
+        var appt_query = 'SELECT appointment_id AS aid, day_of_week, month, CONCAT(" ", day, ", ", year) AS header, time, chief_complaint AS reason, ';
+        appt_query += 'CONCAT(title, " ", first_name, " ", last_name) AS doc, label AS loc FROM APPOINTMENTS ';
+        appt_query += 'LEFT JOIN DOCTORS ON APPOINTMENTS.doctor_id = DOCTORS.doctor_id LEFT JOIN LOCATIONS ON APPOINTMENTS.location_id = LOCATIONS.location_id WHERE patient_id = ?';
+
+        var appt_data = await mysql.pool.query(appt_query, [req.query.id]);
+        var appointments = appt_data[0];
+
+        if (appointments.length <= 0) {
             result.no_appts = true;
         } else {
             var current_appt = 0;
@@ -597,6 +697,13 @@ async function read_patients(req, res) {
             result.show_detail = 'display: block;';
             result.show_appointments = 'display: block;';
             result.patient_select = patient_list[0];
+
+            for (var i = 0; i < result.patient_select.length; i++) {
+                if (result.patient_select[i].option_value == req.query.id) {
+                    result.patient_select[i].selected = true;
+                    break;
+                }
+            }
 
             if (req.query.cancel) {
                 result.redirect_message = 'Appointment has been cancelled.';
@@ -631,7 +738,11 @@ async function read_doctors(req, res) {
     } else if (req.query.u) {
         context.redirect_message = 'Doctor was successfully updated.';
     } else if (req.query.d) {
-        context.redirect_message = 'Doctor was successfully deleted.';
+        if (req.query.d == 'failure') {
+            context.redirect_message = 'Can\'t delete the last remaining doctor!';
+        } else if (req.query.d == 'success') {
+            context.redirect_message = 'Doctor was successfully deleted.';
+        }
     }
 
     var query = 'SELECT DOCTORS.doctor_id AS id, title, first_name, last_name, degree, label FROM DOCTORS ';
@@ -680,7 +791,11 @@ async function read_locations(req, res) {
     } else if (req.query.u) {
         context.redirect_message = 'Location was successfully updated.';
     } else if (req.query.d) {
-        context.redirect_message = 'Location was successfully deleted.';
+        if (req.query.d == 'failure') {
+            context.redirect_message = 'Can\'t delete the last remaining location!';
+        } else if (req.query.d == 'success') {
+            context.redirect_message = 'Location was successfully deleted.';
+        }
     }
 
     var query = 'SELECT LOCATIONS.location_id AS id, label, street1, street2, city, state, zip, phone, title, first_name, last_name FROM LOCATIONS ';
@@ -791,33 +906,41 @@ async function delete_doctors_page(req, res, next) {
 }
 
 async function delete_doctor(req, res) {
-    // Delete appointments with this doctor
-    var appt_data = await mysql.pool.query('SELECT appointment_id AS aid FROM APPOINTMENTS WHERE doctor_id = ?', [req.body.id]);
-    var appts = appt_data[0];
-
-    for (var i = 0; i < appts.length; i++) {
-        await mysql.pool.query('DELETE FROM APPOINTMENTS WHERE appointment_id = ?', [appts[i].aid]);
+    var check = await mysql.pool.query('SELECT COUNT(*) AS count FROM DOCTORS');
+    var num_doctors = check[0][0].count;
+    if (num_doctors <= 1) {
+        res.redirect('/r/doctor?d=failure');
     }
 
-    // Update patients who have this doctor as their primary
-    var patient_data = await mysql.pool.query('SELECT patient_id AS pid FROM PATIENTS WHERE primary_doctor = ?', [req.body.id]);
-    var patients = patient_data[0];
+    else {
+        // Delete appointments with this doctor
+        var appt_data = await mysql.pool.query('SELECT appointment_id AS aid FROM APPOINTMENTS WHERE doctor_id = ?', [req.body.id]);
+        var appts = appt_data[0];
 
-    for (var j = 0; j < patients.length; j++) {
-        await mysql.pool.query('UPDATE PATIENTS SET primary_doctor = NULL WHERE patient_id = ?', [patients[j].pid]);
+        for (var i = 0; i < appts.length; i++) {
+            await mysql.pool.query('DELETE FROM APPOINTMENTS WHERE appointment_id = ?', [appts[i].aid]);
+        }
+
+        // Update patients who have this doctor as their primary
+        var patient_data = await mysql.pool.query('SELECT patient_id AS pid FROM PATIENTS WHERE primary_doctor = ?', [req.body.id]);
+        var patients = patient_data[0];
+
+        for (var j = 0; j < patients.length; j++) {
+            await mysql.pool.query('UPDATE PATIENTS SET primary_doctor = NULL WHERE patient_id = ?', [patients[j].pid]);
+        }
+
+        // Remove all relationships between a location and this doctor
+        var location_data = await mysql.pool.query('SELECT id FROM DOCTORS_LOCATIONS WHERE doctor_id = ?', [req.body.id]);
+        var locations = location_data[0];
+
+        for (var k = 0; k < locations.length; k++) {
+            await mysql.pool.query('DELETE FROM DOCTORS_LOCATIONS WHERE id = ?', [locations[k].id]);
+        }
+
+        // Finally, delete doctor
+        await mysql.pool.query('DELETE FROM DOCTORS WHERE doctor_id = ?', [req.body.id]);
+        res.redirect('/r/doctor?d=success');
     }
-
-    // Remove all relationships between a location and this doctor
-    var location_data = await mysql.pool.query('SELECT id FROM DOCTORS_LOCATIONS WHERE doctor_id = ?', [req.body.id]);
-    var locations = location_data[0];
-
-    for (var k = 0; k < locations.length; k++) {
-        await mysql.pool.query('DELETE FROM DOCTORS_LOCATIONS WHERE id = ?', [locations[k].id]);
-    }
-
-    // Finally, delete doctor
-    await mysql.pool.query('DELETE FROM DOCTORS WHERE doctor_id = ?', [req.body.id]);
-    res.redirect('/r/doctor?d=success');
 }
 
 async function delete_locations_page(req, res, next) {
@@ -846,33 +969,41 @@ async function delete_locations_page(req, res, next) {
 }
 
 async function delete_location(req, res) {
-    // Delete appointments at this location
-    var appt_data = await mysql.pool.query('SELECT appointment_id AS aid FROM APPOINTMENTS WHERE location_id = ?', [req.body.id]);
-    var appts = appt_data[0];
-
-    for (var i = 0; i < appts.length; i++) {
-        await mysql.pool.query('DELETE FROM APPOINTMENTS WHERE appointment_id = ?', [appts[i].aid]);
+    var check = await mysql.pool.query('SELECT COUNT(*) AS count FROM LOCATIONS');
+    var num_locations = check[0][0].count;
+    if (num_locations <= 1) {
+        res.redirect('/r/location?d=failure');
     }
 
-    // Update patients who have this location as their primary
-    var patient_data = await mysql.pool.query('SELECT patient_id AS pid FROM PATIENTS WHERE primary_location = ?', [req.body.id]);
-    var patients = patient_data[0];
+    else {
+        // Delete appointments at this location
+        var appt_data = await mysql.pool.query('SELECT appointment_id AS aid FROM APPOINTMENTS WHERE location_id = ?', [req.body.id]);
+        var appts = appt_data[0];
 
-    for (var j = 0; j < patients.length; j++) {
-        await mysql.pool.query('UPDATE PATIENTS SET primary_location = NULL WHERE patient_id = ?', [patients[j].pid]);
+        for (var i = 0; i < appts.length; i++) {
+            await mysql.pool.query('DELETE FROM APPOINTMENTS WHERE appointment_id = ?', [appts[i].aid]);
+        }
+
+        // Update patients who have this location as their primary
+        var patient_data = await mysql.pool.query('SELECT patient_id AS pid FROM PATIENTS WHERE primary_location = ?', [req.body.id]);
+        var patients = patient_data[0];
+
+        for (var j = 0; j < patients.length; j++) {
+            await mysql.pool.query('UPDATE PATIENTS SET primary_location = NULL WHERE patient_id = ?', [patients[j].pid]);
+        }
+
+        // Remove all relationships between a doctor and this location
+        var doctor_data = await mysql.pool.query('SELECT id FROM DOCTORS_LOCATIONS WHERE location_id = ?', [req.body.id]);
+        var doctors = doctor_data[0];
+
+        for (var k = 0; k < doctors.length; k++) {
+            await mysql.pool.query('DELETE FROM DOCTORS_LOCATIONS WHERE id = ?', [doctors[k].id]);
+        }
+
+        // Finally, delete location
+        await mysql.pool.query('DELETE FROM LOCATIONS WHERE location_id = ?', [req.body.id]);
+        res.redirect('/r/location?d=success');
     }
-
-    // Remove all relationships between a doctor and this location
-    var doctor_data = await mysql.pool.query('SELECT id FROM DOCTORS_LOCATIONS WHERE location_id = ?', [req.body.id]);
-    var doctors = doctor_data[0];
-
-    for (var k = 0; k < doctors.length; k++) {
-        await mysql.pool.query('DELETE FROM DOCTORS_LOCATIONS WHERE id = ?', [doctors[k].id]);
-    }
-
-    // Finally, delete location
-    await mysql.pool.query('DELETE FROM LOCATIONS WHERE location_id = ?', [req.body.id]);
-    res.redirect('/r/location?d=success');
 }
 
 async function delete_appts_page(req, res, next) {
@@ -947,7 +1078,7 @@ async function doctors_locations(req, res) {
     }
 }
 
-app.use(function(req, res) {
+app.use(function(res, res) {
     res.status(404);
     res.render('error', { code: '404' });
 });
