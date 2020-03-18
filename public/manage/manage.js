@@ -25,3 +25,23 @@ for (var i = 0; i < collapsible.length; i++) {
         }
     });
 }
+
+document.getElementById("locationSelect").addEventListener('change', filter);
+document.getElementById("doctorSelect").addEventListener('change', filter);
+
+function filter(event) {
+    var location = document.getElementById("locationSelect").value;
+    var doctor = document.getElementById("doctorSelect").value;
+
+    var refresh = "/manage";
+
+    if (location != "0" && doctor != "0") {
+        refresh += '?location=' + location + "&doctor=" + doctor;
+    } else if (location != "0") {
+        refresh += "?location=" + location;
+    } else if (doctor != "0") {
+        refresh += "?doctor=" + doctor;
+    }
+
+    window.location.href = refresh;
+}

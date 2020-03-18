@@ -233,3 +233,8 @@ input[type=radio]:checked + label:after {
     display: inline-block;
     margin: 5px;
 }
+
+#errorMessage {
+    color: red;
+    font-weight: bolder;
+}
