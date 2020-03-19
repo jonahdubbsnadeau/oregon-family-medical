@@ -1,4 +1,12 @@
-  
+main {
+    padding: 16px;
+}
+
+.item {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
 .btn-block {
     margin-top: 10px;
     text-align: center;
