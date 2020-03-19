@@ -6,7 +6,7 @@ var mysql = require('./dbcon.js');
 var app = express();
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
-app.set('port', process.env.PORT || 8080);
+app.set('port', process.env.PORT || 8054);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -33,22 +33,26 @@ app.route('/cancel').post(unschedule);
 app.route('/reschedule').post(reschedule);
 app.route('/doctors_locations').get(doctors_locations);
 
+// Schedule appointment - set patient_id and chief_complaint of APPOINTMENT
 async function schedule(req, res) {
     await mysql.pool.query('UPDATE APPOINTMENTS SET patient_id = ?, chief_complaint = ? WHERE appointment_id = ?', [req.body.patient, req.body.reason, req.body.appt]);
     res.redirect('/schedule/success?appt=' + req.body.appt);
 }
 
+// Cancel appointment - set patient_id and chief_complaint of APPOINTMENT to NULL
 async function unschedule(req, res) {
     await mysql.pool.query('UPDATE APPOINTMENTS SET patient_id = NULL, chief_complaint = NULL WHERE appointment_id = ?', [req.body.appt]);
     res.end();
 }
 
+// Reschedule appointment - set patient_id and chief_complaint of old APPOINTMENT to NULL, set patient_id and chief_complaint of new APPOINTMENT
 async function reschedule(req, res) {
     await mysql.pool.query('UPDATE APPOINTMENTS SET patient_id = NULL, chief_complaint = NULL WHERE appointment_id = ?', [req.body.old]);
     await mysql.pool.query('UPDATE APPOINTMENTS SET patient_id = ?, chief_complaint = ? WHERE appointment_id = ?', [req.body.patient, req.body.reason, req.body.appt]);
     res.redirect('/schedule/success?appt=' + req.body.appt);
 }
 
+// View open APPOINTMENTS and provide UI for scheduling
 async function schedule_page(req, res, next) {
     if (req.query.ajax) {
         // AJAX request for available times on a given date
@@ -109,6 +113,7 @@ async function schedule_page(req, res, next) {
     }
 }
 
+// Confirm success of scheduling
 async function schedule_success(req, res) {
     var query = 'SELECT PATIENTS.patient_id AS pid, PATIENTS.first_name AS pfname, PATIENTS.last_name AS plname, year, month, day, time, day_of_week, title AS dtitle, DOCTORS.first_name AS dfname, DOCTORS.last_name AS dlname, label AS location FROM APPOINTMENTS ';
     query += 'JOIN PATIENTS ON APPOINTMENTS.patient_id = PATIENTS.patient_id ';
@@ -133,6 +138,7 @@ async function schedule_success(req, res) {
     res.render('confirmation', context);
 }
 
+// All CRUD functionality for APPOINTMENTS
 async function manage_page(req, res) {
     var context = { location: [] };
 
@@ -244,6 +250,7 @@ async function manage_page(req, res) {
     }
 }
 
+// CREATE and UPDATE functionality for PATIENTS
 async function cu_patients_page(req, res) {
     var context = {
         opt_script: 'patient_or_appt.js',
@@ -321,6 +328,7 @@ async function cu_patient(req, res) {
     }
 }
 
+// CREATE and UPDATE functionality for DOCTORS
 async function cu_doctors_page(req, res) {
     var context = {
         opt_script: 'doctor.js',
@@ -423,6 +431,7 @@ async function cu_doctor(req, res) {
     }
 }
 
+// CREATE and UPDATE functionality for LOCATIONS
 async function cu_locations_page(req, res) {
     var context = {
         opt_script: 'location.js',
@@ -547,6 +556,7 @@ async function cu_location(req, res) {
     }
 }
 
+// CREATE and UPDATE functionality for APPOINTMENTS
 async function cu_appts_page(req, res) {
     var context = {
         opt_script: 'patient_or_appt.js',
@@ -625,6 +635,7 @@ async function cu_appt(req, res) {
     }
 }
 
+// READ functionality for PATIENTS
 async function read_patients(req, res) {
     if (req.query.id) {
         var p_query = 'SELECT PATIENTS.patient_id AS pid, CONCAT(PATIENTS.first_name, " ", PATIENTS.last_name) AS name, birthdate, email, PATIENTS.phone AS phone, ';
@@ -730,6 +741,7 @@ async function read_patients(req, res) {
     }
 }
 
+// READ functionality for DOCTORS
 async function read_doctors(req, res) {
     var context = { title: 'Our Doctors', new_link: '/cu/doctor', new_label: 'Add a Doctor', row: [] };
 
@@ -783,6 +795,7 @@ async function read_doctors(req, res) {
     res.render('view-staff', context);
 }
 
+// READ functionality for LOCATIONS
 async function read_locations(req, res) {
     var context = { title: 'Our Locations', new_link: '/cu/location', new_label: 'Add a Location', row: [] };
 
@@ -841,6 +854,7 @@ async function read_locations(req, res) {
     res.render('view-staff', context);
 }
 
+// DELETE functionality for PATIENTS
 async function delete_patients_page(req, res, next) {
     if (!req.query.id) {
         next();
@@ -880,6 +894,7 @@ async function delete_patient(req, res) {
     res.redirect('/r/patient?d=success');
 }
 
+// DELETE functionality for DOCTORS
 async function delete_doctors_page(req, res, next) {
     if (!req.query.id) {
         next();
@@ -943,6 +958,7 @@ async function delete_doctor(req, res) {
     }
 }
 
+// DELETE functionality for LOCATIONS
 async function delete_locations_page(req, res, next) {
     if (!req.query.id) {
         next();
@@ -1006,6 +1022,7 @@ async function delete_location(req, res) {
     }
 }
 
+// DELETE functionality for APPOINTMENTS
 async function delete_appts_page(req, res, next) {
     if (!req.query.id) {
         next();
@@ -1047,6 +1064,7 @@ async function delete_appt(req, res) {
     res.redirect('/manage?d=success');
 }
 
+// READ functionality specifically for the M:M relationship between DOCTORS and LOCATIONS
 async function doctors_locations(req, res) {
     if (req.query.doc) {
         if (req.query.doc == "all") {
