@@ -3,12 +3,12 @@ main {
 }
 
 .item {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
 
 .btn-block {
-    margin-top: 10px;
+    margin-top: 12px;
     text-align: center;
 }
     
@@ -29,7 +29,6 @@ main {
 
 .check {
     display: inline-block;
-    margin: 5px;
 }
 
 #errorMessage {
